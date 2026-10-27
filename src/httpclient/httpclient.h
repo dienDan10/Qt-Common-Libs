@@ -19,6 +19,7 @@ class HttpClient : public QObject
     Q_OBJECT
 public:
     using Headers = QHash<QByteArray, QByteArray>;
+    explicit HttpClient(QObject *parent = nullptr);
     explicit HttpClient(QNetworkAccessManager *manager, QObject *parent = nullptr);
 
     // cấu hình http client
@@ -64,6 +65,8 @@ public:
 
     QFuture<HttpResponse> del(const QString &path, const Headers &headers = {});
 
+    QFuture<HttpResponse> head(const QString &path, const Headers &headers = {});
+
     QFuture<HttpResponse> send(const QByteArray &method,
                                const QString &path,
                                const QByteArray &body = {},
@@ -79,6 +82,7 @@ private:
                                       const QByteArray &body,
                                       const QByteArray &contentType,
                                       const Headers &headers);
+    static HttpResponse makeResponse(QNetworkReply *reply);
 
 private:
     QNetworkAccessManager *mManager = nullptr;
