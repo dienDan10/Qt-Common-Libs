@@ -26,15 +26,15 @@ QString HttpResponse::text() const
     return QString::fromUtf8(body);
 }
 
-QJsonDocument HttpResponse::json() const
+QJsonDocument HttpResponse::json(QJsonParseError *error) const
 {
-    return QJsonDocument::fromJson(body);
+    return QJsonDocument::fromJson(body, error);
 }
 
 QByteArray HttpResponse::header(const QByteArray &name) const
 {
     for (const auto &pair : headers) {
-        if (pair.first.compare(name, Qt::CaseInsensitive))
+        if (pair.first.compare(name, Qt::CaseInsensitive) == 0)
             return pair.second;
     }
 

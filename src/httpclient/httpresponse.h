@@ -12,6 +12,7 @@
 #define HTTPRESPONSE_H
 
 #include <QByteArray>
+#include <QJsonParseError>
 #include <QList>
 #include <QNetworkReply>
 #include <QUrl>
@@ -32,7 +33,7 @@ struct HttpResponse
 
     QString text() const;
 
-    QJsonDocument json() const;
+    QJsonDocument json(QJsonParseError *error = nullptr) const;
 
     // lấy header không phân biệt hoa thường
     QByteArray header(const QByteArray &name) const;

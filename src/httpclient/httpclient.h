@@ -13,6 +13,8 @@
 #include <QFuture>
 #include <QNetworkAccessManager>
 #include <QObject>
+#include <QPointer>
+#include <QUrlQuery>
 #include "httpresponse.h"
 class HttpClient : public QObject
 {
@@ -21,6 +23,8 @@ public:
     using Headers = QHash<QByteArray, QByteArray>;
     explicit HttpClient(QObject *parent = nullptr);
     explicit HttpClient(QNetworkAccessManager *manager, QObject *parent = nullptr);
+
+    ~HttpClient() override;
 
     // cấu hình http client
     void setBaseAddress(const QUrl &url);
@@ -32,6 +36,8 @@ public:
 
     void setTimeout(std::chrono::milliseconds timeout);
     std::chrono::milliseconds getTimeout() const;
+
+    void setIgnoreSslErrors(const bool value);
 
     // requests
     QFuture<HttpResponse> get(const QString &path, const Headers &headers = {});
@@ -85,7 +91,7 @@ private:
     static HttpResponse makeResponse(QNetworkReply *reply);
 
 private:
-    QNetworkAccessManager *mManager = nullptr;
+    QPointer<QNetworkAccessManager> mManager;
     QUrl mBaseAddress;
     Headers mDefaultHeaders;
     std::chrono::milliseconds mTimeout{30000};

@@ -9,18 +9,53 @@
  *              All rights reserved.
  ******************************************************************************/
 #include "httpclient.h"
+#include <QCoreApplication>
 #include <QJsonDocument>
-#include <QUrlQuery>
+#include <QNetworkAccessManager>
+#include <QPointer>
+#include <QTimer>
+
+namespace {
+QNetworkAccessManager *sharedManager()
+{
+    thread_local QPointer<QNetworkAccessManager> nam;
+    if (nam)
+        return nam;
+
+    nam = new QNetworkAccessManager;
+
+    QThread *current = QThread::currentThread();
+    QCoreApplication *app = QCoreApplication::instance();
+    if (app && current == app->thread()) {
+        nam->setParent(app);
+    } else {
+        QObject::connect(current, &QThread::finished, nam, &QObject::deleteLater);
+    }
+
+    return nam;
+}
+
+struct RequestState
+{
+    QPromise<HttpResponse> promise;
+    bool isTimeout = false;
+};
+} // namespace
 
 HttpClient::HttpClient(QObject *parent)
     : QObject(parent)
-    , mManager(new QNetworkAccessManager(this))
+    , mManager(sharedManager())
 {}
 
 HttpClient::HttpClient(QNetworkAccessManager *manager, QObject *parent)
     : QObject(parent)
     , mManager(manager)
 {}
+
+HttpClient::~HttpClient()
+{
+    cancelAll();
+}
 
 void HttpClient::setBaseAddress(const QUrl &url)
 {
@@ -39,9 +74,7 @@ void HttpClient::setDefaultHeader(const QByteArray &name, const QByteArray &valu
 
 void HttpClient::removeDefaultHeader(const QByteArray &name)
 {
-    if (mDefaultHeaders.contains(name)) {
-        mDefaultHeaders.remove(name);
-    }
+    mDefaultHeaders.remove(name);
 }
 
 void HttpClient::setTimeout(std::chrono::milliseconds timeout)
@@ -52,6 +85,11 @@ void HttpClient::setTimeout(std::chrono::milliseconds timeout)
 std::chrono::milliseconds HttpClient::getTimeout() const
 {
     return mTimeout;
+}
+
+void HttpClient::setIgnoreSslErrors(const bool value)
+{
+    mIgnoreSslErrors = value;
 }
 
 HttpClient::Headers HttpClient::getDefaultHeaders() const
@@ -145,6 +183,10 @@ QFuture<HttpResponse> HttpClient::send(const QByteArray &method,
 
 void HttpClient::cancelAll()
 {
+    if (!mManager) {
+        mPending.clear();
+        return;
+    }
     // copy pending vì abort() làm signal finished phát luôn, và đồng thời xóa reply khỏi
     // pending, tức vừa duyệt vừa xóa
     const auto pending = mPending;
@@ -166,6 +208,18 @@ QFuture<HttpResponse> HttpClient::sendRequest(const QByteArray &method,
                                               const QByteArray &contentType,
                                               const Headers &headers)
 {
+    if (!mManager) {
+        QPromise<HttpResponse> promise;
+        QFuture<HttpResponse> future = promise.future();
+        promise.start();
+        HttpResponse res;
+        res.error = QNetworkReply::OperationCanceledError;
+        res.errorString = QStringLiteral("Network manager has been destroyed");
+        promise.addResult(res);
+        promise.finish();
+        return future; // future đã xong sẵn, .then() sẽ chạy ngay
+    }
+
     QNetworkRequest request(url);
 
     for (auto it = mDefaultHeaders.cbegin(); it != mDefaultHeaders.cend(); it++) {
@@ -179,8 +233,6 @@ QFuture<HttpResponse> HttpClient::sendRequest(const QByteArray &method,
     if (!contentType.isEmpty()) {
         request.setHeader(QNetworkRequest::ContentTypeHeader, contentType);
     }
-
-    request.setTransferTimeout(mTimeout.count());
 
     QNetworkReply *reply = nullptr;
     if (method == "GET")
@@ -197,9 +249,16 @@ QFuture<HttpResponse> HttpClient::sendRequest(const QByteArray &method,
         reply = mManager->sendCustomRequest(request, method, body);
 
     // tạo một promise để đợi khi response trả về
-    auto promise = std::make_shared<QPromise<HttpResponse>>();
-    QFuture<HttpResponse> future = promise->future();
-    promise->start();
+    auto promiseState = std::make_shared<RequestState>();
+    QFuture<HttpResponse> future = (promiseState->promise).future();
+    (promiseState->promise).start();
+
+    if (mTimeout > std::chrono::milliseconds::zero()) {
+        QTimer::singleShot(mTimeout, reply, [promiseState, reply]() {
+            promiseState->isTimeout = true;
+            reply->abort();
+        });
+    }
 
     mPending.append(reply);
 
@@ -209,10 +268,17 @@ QFuture<HttpResponse> HttpClient::sendRequest(const QByteArray &method,
         });
     }
 
-    connect(reply, &QNetworkReply::finished, this, [this, reply, promise]() {
+    connect(reply, &QNetworkReply::finished, this, [this, reply, promiseState]() {
         mPending.removeOne(reply);
-        promise->addResult(makeResponse(reply));
-        promise->finish();
+        HttpResponse res = makeResponse(reply);
+
+        if (promiseState->isTimeout) {
+            res.error = QNetworkReply::TimeoutError;
+            res.errorString = QStringLiteral("Request timed out");
+        }
+
+        (promiseState->promise).addResult(res);
+        (promiseState->promise).finish();
         reply->deleteLater();
     });
 
