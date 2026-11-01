@@ -254,10 +254,13 @@ QFuture<HttpResponse> HttpClient::sendRequest(const QByteArray &method,
     (promiseState->promise).start();
 
     if (mTimeout > std::chrono::milliseconds::zero()) {
-        QTimer::singleShot(mTimeout, reply, [promiseState, reply]() {
+        auto timer = new QTimer(reply);
+        timer->setSingleShot(true);
+        connect(timer, &QTimer::timeout, reply, [promiseState, reply]() {
             promiseState->isTimeout = true;
             reply->abort();
         });
+        timer->start(mTimeout);
     }
 
     mPending.append(reply);

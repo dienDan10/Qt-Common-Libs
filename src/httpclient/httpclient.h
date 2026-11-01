@@ -38,6 +38,7 @@ public:
     std::chrono::milliseconds getTimeout() const;
 
     void setIgnoreSslErrors(const bool value);
+    QNetworkAccessManager *manager() const { return mManager; }
 
     // requests
     QFuture<HttpResponse> get(const QString &path, const Headers &headers = {});
