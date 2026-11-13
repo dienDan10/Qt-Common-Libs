@@ -24,6 +24,7 @@ if (QTCOMMON_BUILD_HTTPSERVER)
     add_library(qtcommon_httpserver STATIC
         httpserver/context.h    httpserver/context.cpp
         httpserver/ilogger.h
+        httpserver/httpexception.h httpserver/httpexception.cpp
     )
 
     add_library(QtCommon::HttpServer ALIAS qtcommon_httpserver)
