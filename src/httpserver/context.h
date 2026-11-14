@@ -107,7 +107,7 @@ private:
     QByteArray mResponseBody;
     QHttpHeaders mResponseHeaders;
 
-    std::atomic<bool> mResponded;
+    std::atomic<bool> mResponded{false};
     QList<BeforeResponseHook> mBeforeResponseHooks;
     ResponseSender mResponseSender;
     ErrorCallback mErrorCallback;

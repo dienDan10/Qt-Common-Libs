@@ -15,7 +15,7 @@
 
 namespace ErrorHandler {
 
-void handle(std::shared_ptr<Context> ctx, const std::exception &e)
+inline void handle(std::shared_ptr<Context> ctx, const std::exception &e)
 {
     // xử lý lỗi tự throw có chủ đích (HttpException)
     if (const auto *httpEx = dynamic_cast<const HttpException *>(&e)) {

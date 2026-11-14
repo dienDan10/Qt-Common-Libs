@@ -125,20 +125,22 @@ bool Router::dispatch(std::shared_ptr<Context> ctx, int serverDefaultTimeoutMs) 
 
         int timeoutMs = route.resolveTimeout(serverDefaultTimeoutMs);
         if (timeoutMs != Route::NoTimeOut && timeoutMs > 0) {
-            auto timer = std::make_shared<QTimer>();
-            timer->setSingleShot(timeoutMs);
+            std::shared_ptr<QTimer> timer(new QTimer, [](QTimer *t) { t->deleteLater(); });
+            timer->setSingleShot(true);
 
-            QObject::connect(timer.get(), &QTimer::timeout, [ctx]() {
-                if (!ctx->hasResponded()) {
-                    ctx->error(503, "Request Timeout");
+            std::weak_ptr<Context> weakCtx = ctx;
+            QObject::connect(timer.get(), &QTimer::timeout, [weakCtx]() {
+                if (auto c = weakCtx.lock()) {
+                    if (!c->hasResponded()) {
+                        c->error(503, "Request Timeout");
+                    }
                 }
             });
 
-            ctx->onBeforeResponse([timer](Context &ctx) {
-                QMetaObject::invokeMethod(timer.get(), [timer]() { timer->stop(); });
-            });
+            ctx->onBeforeResponse(
+                [timer](Context &ctx) { QMetaObject::invokeMethod(timer.get(), [timer]() { timer->stop(); }); });
 
-            timer->start();
+            timer->start(timeoutMs);
         }
 
         if (!route.getRunSync()) {
@@ -162,9 +164,8 @@ Route &Router::addRoute(const QString &method, const QString &path, Route::Handl
     // throw error if this route has been registered
     for (const Route &route : *mRoutes) {
         if (route.getMethod() == method && route.getPattern() == fullPath) {
-            throw std::logic_error(QString("Router: duplicate route registered: %1 %2")
-                                       .arg(method, fullPath)
-                                       .toStdString());
+            throw std::logic_error(
+                QString("Router: duplicate route registered: %1 %2").arg(method, fullPath).toStdString());
         }
     }
 

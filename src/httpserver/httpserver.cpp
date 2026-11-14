@@ -69,7 +69,7 @@ void HttpServer::useErrorCallback(Context::ErrorCallback callback)
 bool HttpServer::listen(quint16 port)
 {
     auto mTcpServer = new QTcpServer(mHttpServer);
-    if (mTcpServer->listen(QHostAddress::Any, port)) {
+    if (!mTcpServer->listen(QHostAddress::Any, port)) {
         mLogger->error(QString("Server: cannot bind to port %1").arg(port));
         return false;
     }
