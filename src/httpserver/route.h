@@ -49,10 +49,10 @@ public:
     const bool getRunSync() const;
 
 private:
-    QString mMethod;
-    QString mPattern;
-    QList<QString> mSegments;
-    Handler handler;
+    QString mMethod;  // method of this route
+    QString mPattern; // path of this route
+    QList<QString> mSegments; // parts of the request path, use to compare and extract params
+    Handler mHandler;
     QList<std::shared_ptr<IMiddleware>> mMiddlewares;
     std::optional<int> mOwnTimeoutMs;
     std::optional<int> mGroupDefaultTimeoutMs;
