@@ -11,22 +11,22 @@
 #include "httpexception.h"
 
 HttpException::HttpException(int statusCode, QString message)
-    : m_statusCode(statusCode)
-    , m_message(std::move(message))
+    : mStatusCode(statusCode)
+    , mMessage(std::move(message))
+    , mWhatCache(mMessage.toStdString())
 {}
 
 int HttpException::statusCode() const
 {
-    return m_statusCode;
+    return mStatusCode;
 }
 
 QString HttpException::message() const
 {
-    return m_message;
+    return mMessage;
 }
 
 const char *HttpException::what() const noexcept
 {
-    m_whatCache = m_message.toStdString();
-    return m_whatCache.c_str();
+    return mWhatCache.c_str();
 }

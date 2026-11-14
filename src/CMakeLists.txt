@@ -25,6 +25,10 @@ if (QTCOMMON_BUILD_HTTPSERVER)
         httpserver/context.h    httpserver/context.cpp
         httpserver/ilogger.h
         httpserver/httpexception.h httpserver/httpexception.cpp
+        httpserver/errorhandler.h
+        httpserver/route.h httpserver/route.cpp
+        httpserver/router.h httpserver/router.cpp
+        httpserver/imiddleware.h
     )
 
     add_library(QtCommon::HttpServer ALIAS qtcommon_httpserver)

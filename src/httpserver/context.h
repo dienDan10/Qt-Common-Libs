@@ -39,7 +39,7 @@ public:
     using ResponseSender
         = std::function<void(int statusCode, const QByteArray &body, const QHttpHeaders &headers)>;
     using BeforeResponseHook = std::function<void(Context &ctx)>;
-    using ErrorCallback = std::function<void(QSharedPointer<Context> ctx, const std::exception &e)>;
+    using ErrorCallback = std::function<void(std::shared_ptr<Context> ctx, const std::exception &e)>;
 
     // REQUEST
     QString method() const;

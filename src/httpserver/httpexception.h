@@ -23,9 +23,9 @@ public:
     const char *what() const noexcept override;
 
 private:
-    int m_statusCode;
-    QString m_message;
-    mutable std::string m_whatCache;
+    int mStatusCode;
+    QString mMessage;
+    std::string mWhatCache;
 };
 
 class BadRequestException : public HttpException
