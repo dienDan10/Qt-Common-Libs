@@ -29,6 +29,8 @@ if (QTCOMMON_BUILD_HTTPSERVER)
         httpserver/route.h httpserver/route.cpp
         httpserver/router.h httpserver/router.cpp
         httpserver/imiddleware.h
+        httpserver/httpserver.h httpserver/httpserver.cpp
+        httpserver/defaultlogger.h
     )
 
     add_library(QtCommon::HttpServer ALIAS qtcommon_httpserver)
