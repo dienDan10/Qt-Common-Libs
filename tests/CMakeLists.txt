@@ -21,3 +21,12 @@ add_test(NAME tst_middleware COMMAND tst_middleware)
 qt_add_executable(tst_dispatch tst_dispatch.cpp testhelper.h)
 target_link_libraries(tst_dispatch PRIVATE QtCommon::HttpServer Qt6::Test)
 add_test(NAME tst_dispatch COMMAND tst_dispatch)
+
+qt_add_executable(tst_server tst_server.cpp)
+target_link_libraries(tst_server
+    PRIVATE
+        QtCommon::HttpServer
+        QtCommon::HttpClient
+        Qt6::Test
+)
+add_test(NAME tst_server COMMAND tst_server)
