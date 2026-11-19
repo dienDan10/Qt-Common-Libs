@@ -103,6 +103,14 @@ void HttpServer::handlerRequest(const QHttpServerRequest &request, QHttpServerRe
     ctx->setLogger(mLogger);
     ctx->setErrorCallback(mErrorCallback);
 
+    // get sender ip
+    const QByteArray ip = request.headers().value("X-Real-IP").toByteArray();
+    if (!ip.isEmpty()) {
+        ctx->setRequestIp(QString::fromLatin1(ip).trimmed());
+    } else {
+        ctx->setRequestIp(request.remoteAddress().toString());
+    }
+
     // dispatch the context to router
     auto sharedResponder = std::make_shared<QHttpServerResponder>(std::move(responder));
     ctx->setResponseSender([this, sharedResponder](int statusCode, const QByteArray &body, const QHttpHeaders &headers) {

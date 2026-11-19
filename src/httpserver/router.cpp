@@ -39,6 +39,22 @@ bool matchSegments(const QList<QString> &routeSegments,
     return true;
 }
 
+void handleSafely(const std::shared_ptr<Context> &ctx, const std::exception &e)
+{
+    try {
+        ErrorHandler::handle(ctx, e);
+    } catch (...) {
+        if (auto logger = ctx->logger()) {
+            logger->error(QString("Exception thrown while handling error for %1 %2")
+                              .arg(ctx->method(), ctx->path()));
+        }
+
+        if (!ctx->hasResponded()) {
+            ctx->error(500, "Internal Server Error");
+        }
+    }
+};
+
 void runChain(int index,
               std::shared_ptr<Context> ctx,
               const QList<std::shared_ptr<IMiddleware>> &middlewares,
@@ -54,7 +70,9 @@ void runChain(int index,
             runChain(index + 1, ctx, middlewares, finalHandler);
         });
     } catch (const std::exception &e) {
-        ErrorHandler::handle(ctx, e);
+        handleSafely(ctx, e);
+    } catch (...) {
+        handleSafely(ctx, std::runtime_error("unknown exception type"));
     }
 };
 
