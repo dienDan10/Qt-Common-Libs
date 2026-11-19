@@ -5,33 +5,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-option(QTCOMMON_BUILD_HTTPCLIENT
-    "Build the HttpClient module"
-    ON
-)
+find_package(Qt6 REQUIRED COMPONENTS Core Network HttpServer Test)
+qt_standard_project_setup()   # bật AUTOMOC cho tests
 
-option(QTCOMMON_BUILD_HTTPSERVER
-    "Build the HttpServer module"
-    ON
-)
+add_subdirectory(src/httpclient)
+add_subdirectory(src/httpserver)
 
-find_package(Qt6 REQUIRED COMPONENTS Core)
-
-if(QTCOMMON_BUILD_HTTPCLIENT)
-    find_package(Qt6 REQUIRED COMPONENTS Network)
-endif()
-
-if (QTCOMMON_BUILD_HTTPSERVER)
-    find_package(Qt6 REQUIRED COMPONENTS Network HttpServer)
-endif()
-
-qt_standard_project_setup()
-
-add_subdirectory(src)
-
-include(CTest)
-
-if(BUILD_TESTING)
-    find_package(Qt6 REQUIRED COMPONENTS Test)
-    add_subdirectory(tests)
-endif()
+enable_testing()
+add_subdirectory(tests)

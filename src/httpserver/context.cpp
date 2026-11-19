@@ -218,8 +218,10 @@ void Context::finalizeResponse(int statusCode, const QByteArray &body, const QBy
     bool expected = false;
     if (!mResponded.compare_exchange_strong(expected, true)) {
         // request đã được gửi, log
-        mLogger->warning(
-            QString("Response already sent, ignoring duplicate call for %1 %2").arg(mMethod, mPath));
+        if (mLogger) {
+            mLogger->warning(QString("Response already sent, ignoring duplicate call for %1 %2")
+                                 .arg(mMethod, mPath));
+        }
         return;
     }
 
@@ -233,8 +235,10 @@ void Context::finalizeResponse(int statusCode, const QByteArray &body, const QBy
 
     if (!mResponseSender) {
         // không tồn tại phương thức gửi, log
-        mLogger->error(
-            QString("No response sender set for %1 %2, response dropped").arg(mMethod, mPath));
+        if (mLogger) {
+            mLogger->error(
+                QString("No response sender set for %1 %2, response dropped").arg(mMethod, mPath));
+        }
         return;
     }
 
