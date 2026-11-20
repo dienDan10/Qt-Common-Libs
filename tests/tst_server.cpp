@@ -80,6 +80,9 @@ void tst_Server::initTestCase()
     router.get("/boom", [](Ctx) { throw std::runtime_error("boom"); });
     router.get("/forbidden", [](Ctx) { throw ForbiddenException("nope"); });
 
+    router.get("/throw-int", [](Ctx) { throw 42; });
+    router.get("/throw-in-callback", [](Ctx) { throw std::runtime_error("trigger-callback"); });
+
     router
         .get("/slow",
              [](Ctx c) {
@@ -95,6 +98,10 @@ void tst_Server::initTestCase()
 
     mServer = std::make_unique<HttpServer>();
     mServer->useLogger(std::make_shared<NullLogger>());
+    mServer->useErrorCallback([](Ctx, const std::exception &e) {
+        if (QByteArray(e.what()) == "trigger-callback")
+            throw std::logic_error("callback failed");
+    });
     mServer->useRouter(std::move(router));
 
     // HttpServer chưa cho biết cổng đã bind nên tìm một cổng trống trước
@@ -157,6 +164,8 @@ void tst_Server::errors_mapToStatusCodes()
         {"/boom", 500, "Internal Server Error"},
         {"/forbidden", 403, "nope"},
         {"/missing", 404, "Not Found"},
+        {"/throw-int", 500, "Internal Server Error"},
+        {"/throw-in-callback", 500, "Internal Server Error"},
     };
 
     for (const auto &[path, status, message] : cases) {

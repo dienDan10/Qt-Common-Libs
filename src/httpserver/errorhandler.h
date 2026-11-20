@@ -12,6 +12,8 @@
 #define ERRORHANDLER_H
 #include "context.h"
 #include "httpexception.h"
+#include <exception>
+#include <memory>
 
 namespace ErrorHandler {
 

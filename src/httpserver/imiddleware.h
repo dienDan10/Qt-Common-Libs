@@ -12,6 +12,7 @@
 #define IMIDDLEWARE_H
 #include "context.h"
 #include <functional>
+#include <memory>
 
 using NextFunction = std::function<void()>;
 

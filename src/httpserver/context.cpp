@@ -10,7 +10,7 @@
  ******************************************************************************/
 
 #include "context.h"
-#include <QJsonObject>
+#include <QJsonDocument>
 #include <QJsonParseError>
 
 Context::Context() {}

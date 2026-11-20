@@ -15,12 +15,17 @@
 
 #include <QByteArray>
 #include <QHttpHeaders>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QList>
 #include <QMap>
 #include <QSharedPointer>
 #include <QString>
 #include "ilogger.h"
 #include <atomic>
+#include <exception>
 #include <functional>
+#include <memory>
 
 struct CookieOptions
 {

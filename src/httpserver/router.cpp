@@ -12,6 +12,7 @@
 #include <QThreadPool>
 #include <QTimer>
 #include "errorhandler.h"
+#include <stdexcept>
 namespace {
 QList<QString> splitPath(const QString &path)
 {

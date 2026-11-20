@@ -13,6 +13,7 @@
 
 #include <QString>
 #include <exception>
+#include <string>
 
 class HttpException : public std::exception
 {

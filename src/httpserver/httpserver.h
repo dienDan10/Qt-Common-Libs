@@ -17,6 +17,7 @@
 #include "context.h"
 #include "ilogger.h"
 #include "router.h"
+#include <memory>
 
 class HttpServer : public QObject
 {

@@ -15,6 +15,8 @@
 #include "context.h"
 #include "imiddleware.h"
 #include <functional>
+#include <memory>
+#include <optional>
 
 class Route
 {

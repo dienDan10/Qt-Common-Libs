@@ -9,6 +9,7 @@
  *              All rights reserved.
  ******************************************************************************/
 #include "httpserver.h"
+#include <QUrlQuery>
 #include "defaultlogger.h"
 
 namespace {

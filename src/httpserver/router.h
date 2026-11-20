@@ -16,6 +16,8 @@
 #include "context.h"
 #include "imiddleware.h"
 #include "route.h"
+#include <memory>
+#include <optional>
 
 class Router
 {
