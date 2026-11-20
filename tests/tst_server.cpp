@@ -53,6 +53,7 @@ private slots:
     void errors_mapToStatusCodes();
     void slowHandler_gets503WithoutWaiting();
     void concurrentRequests_doNotMixResponses();
+    void options_isAnsweredOverTheWire();
 
 private:
     std::unique_ptr<HttpServer> mServer;
@@ -203,6 +204,14 @@ void tst_Server::concurrentRequests_doNotMixResponses()
         QCOMPARE(res.statusCode, 200);
         QCOMPARE(res.json().object().value("id").toString(), QString::number(i));
     }
+}
+
+void tst_Server::options_isAnsweredOverTheWire()
+{
+    const HttpResponse res = await(mHttp->send("OPTIONS", "/hello"));
+
+    QCOMPARE(res.statusCode, 204);
+    QCOMPARE(res.header("Allow"), QByteArray("GET, OPTIONS"));
 }
 
 QTEST_GUILESS_MAIN(tst_Server)

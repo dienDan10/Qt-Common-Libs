@@ -77,6 +77,41 @@ void runChain(int index,
     }
 };
 
+void launch(const Route &route,
+            const Route::Handler &handler,
+            const std::shared_ptr<Context> &ctx,
+            int serverDefaultTimeoutMs)
+{
+    int timeoutMs = route.resolveTimeout(serverDefaultTimeoutMs);
+    if (timeoutMs != Route::NoTimeOut && timeoutMs > 0) {
+        std::shared_ptr<QTimer> timer(new QTimer, [](QTimer *t) { t->deleteLater(); });
+        timer->setSingleShot(true);
+
+        std::weak_ptr<Context> weakCtx = ctx;
+        QObject::connect(timer.get(), &QTimer::timeout, [weakCtx]() {
+            if (auto c = weakCtx.lock()) {
+                if (!c->hasResponded()) {
+                    c->error(503, "Request Timeout");
+                }
+            }
+        });
+
+        ctx->onBeforeResponse([timer](Context &) {
+            QMetaObject::invokeMethod(timer.get(), [timer]() { timer->stop(); });
+        });
+
+        timer->start(timeoutMs);
+    }
+
+    auto middlewares = route.getMiddlewares();
+    if (!route.getRunSync()) {
+        QThreadPool::globalInstance()->start(
+            [ctx, middlewares, handler]() { runChain(0, ctx, middlewares, handler); });
+    } else {
+        runChain(0, ctx, middlewares, handler);
+    }
+}
+
 } // namespace
 
 Router::Router()
@@ -141,36 +176,43 @@ bool Router::dispatch(std::shared_ptr<Context> ctx, int serverDefaultTimeoutMs) 
             continue;
 
         ctx->setPathParams(requestParams);
+        launch(route, route.getHandler(), ctx, serverDefaultTimeoutMs);
+        return true;
+    }
 
-        int timeoutMs = route.resolveTimeout(serverDefaultTimeoutMs);
-        if (timeoutMs != Route::NoTimeOut && timeoutMs > 0) {
-            std::shared_ptr<QTimer> timer(new QTimer, [](QTimer *t) { t->deleteLater(); });
-            timer->setSingleShot(true);
+    // handle options method (this part don't need to be registered, just internal use)
+    if (ctx->method() == "OPTIONS") {
+        const Route *firstMatch = nullptr;
+        QStringList allowed;
 
-            std::weak_ptr<Context> weakCtx = ctx;
-            QObject::connect(timer.get(), &QTimer::timeout, [weakCtx]() {
-                if (auto c = weakCtx.lock()) {
-                    if (!c->hasResponded()) {
-                        c->error(503, "Request Timeout");
-                    }
-                }
-            });
+        for (const Route &route : *mRoutes) {
+            requestParams.clear();
+            if (!matchSegments(route.getSegments(), requestSegments, requestParams))
+                continue;
 
-            ctx->onBeforeResponse(
-                [timer](Context &ctx) { QMetaObject::invokeMethod(timer.get(), [timer]() { timer->stop(); }); });
+            if (!firstMatch) {
+                firstMatch = &route;
+                ctx->setPathParams(requestParams);
+            }
 
-            timer->start(timeoutMs);
+            if (!allowed.contains(route.getMethod())) {
+                allowed << route.getMethod();
+            }
         }
 
-        if (!route.getRunSync()) {
-            auto middlewares = route.getMiddlewares();
-            auto handler = route.getHandler();
+        if (!firstMatch)
+            return false;
 
-            QThreadPool::globalInstance()->start(
-                [ctx, middlewares, handler]() { runChain(0, ctx, middlewares, handler); });
-        } else {
-            runChain(0, ctx, route.getMiddlewares(), route.getHandler());
-        }
+        allowed << "OPTIONS";
+        const QByteArray allowHeader = allowed.join(", ").toUtf8();
+        launch(
+            *firstMatch,
+            [allowHeader](std::shared_ptr<Context> c) {
+                c->setResponseHeader("Allow", allowHeader);
+                c->text("", 204);
+            },
+            ctx,
+            serverDefaultTimeoutMs);
         return true;
     }
 

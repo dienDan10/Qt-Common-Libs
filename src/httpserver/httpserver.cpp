@@ -27,6 +27,10 @@ QString methodToString(QHttpServerRequest::Method method)
         return "PATCH";
     case QHttpServerRequest::Method::Delete:
         return "DELETE";
+    case QHttpServerRequest::Method::Head:
+        return "HEAD";
+    case QHttpServerRequest::Method::Options:
+        return "OPTIONS";
     default:
         return "UNKNOWN";
     }
