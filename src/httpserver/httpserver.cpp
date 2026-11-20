@@ -9,6 +9,7 @@
  *              All rights reserved.
  ******************************************************************************/
 #include "httpserver.h"
+#include <QPointer>
 #include <QUrlQuery>
 #include "defaultlogger.h"
 
@@ -114,13 +115,19 @@ void HttpServer::handlerRequest(const QHttpServerRequest &request, QHttpServerRe
 
     // dispatch the context to router
     auto sharedResponder = std::make_shared<QHttpServerResponder>(std::move(responder));
-    ctx->setResponseSender([this, sharedResponder](int statusCode, const QByteArray &body, const QHttpHeaders &headers) {
+    QPointer<HttpServer> self(this);
+    ctx->setResponseSender([self, sharedResponder](int statusCode,
+                                                   const QByteArray &body,
+                                                   const QHttpHeaders &headers) {
+        // if self is nullptr, it means httpserver instance is destroyed, do nothing
+        if (!self)
+            return;
         /**
          * use QMetaObject::invokeMethod because responder can be call in another thread
          * for QHttpServer, responder can only return response in same thread as server
          * invokeMethod execute lambda in same thread as context, which is this 
          */
-        QMetaObject::invokeMethod(this, [sharedResponder, statusCode, body, headers]() {
+        QMetaObject::invokeMethod(self.data(), [sharedResponder, statusCode, body, headers]() {
             sharedResponder->write(body, headers, static_cast<QHttpServerResponse::StatusCode>(statusCode));
         });
     });
