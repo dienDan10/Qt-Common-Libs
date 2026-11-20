@@ -180,7 +180,24 @@ bool Router::dispatch(std::shared_ptr<Context> ctx, int serverDefaultTimeoutMs) 
         return true;
     }
 
-    // handle options method (this part don't need to be registered, just internal use)
+    // HEAD chưa có route riêng thì dùng handler của GET, nhưng bỏ body khi trả về
+    if (ctx->method() == "HEAD") {
+        for (const Route &route : *mRoutes) {
+            if (route.getMethod() != "GET")
+                continue;
+
+            requestParams.clear();
+            if (!matchSegments(route.getSegments(), requestSegments, requestParams))
+                continue;
+
+            ctx->setPathParams(requestParams);
+            ctx->setHeadOnly(true);
+            launch(route, route.getHandler(), ctx, serverDefaultTimeoutMs);
+            return true;
+        }
+    }
+
+    // OPTIONS
     if (ctx->method() == "OPTIONS") {
         const Route *firstMatch = nullptr;
         QStringList allowed;
@@ -203,6 +220,8 @@ bool Router::dispatch(std::shared_ptr<Context> ctx, int serverDefaultTimeoutMs) 
         if (!firstMatch)
             return false;
 
+        if (allowed.contains("GET"))
+            allowed << "HEAD";
         allowed << "OPTIONS";
         const QByteArray allowHeader = allowed.join(", ").toUtf8();
         launch(

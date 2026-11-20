@@ -183,6 +183,11 @@ QByteArray Context::responseBody() const
     return mResponseBody;
 }
 
+void Context::setHeadOnly(bool headOnly)
+{
+    mHeadOnly = headOnly;
+}
+
 void Context::onBeforeResponse(BeforeResponseHook hook)
 {
     mBeforeResponseHooks.append(std::move(hook));
@@ -242,5 +247,5 @@ void Context::finalizeResponse(int statusCode, const QByteArray &body, const QBy
         return;
     }
 
-    mResponseSender(statusCode, body, mResponseHeaders);
+    mResponseSender(statusCode, mHeadOnly ? QByteArray() : body, mResponseHeaders);
 }

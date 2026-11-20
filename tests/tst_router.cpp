@@ -32,6 +32,8 @@ private slots:
     void duplicateRoute_throws();
     void options_isAnsweredAutomaticallyWithAllow();
     void options_runsRouteMiddlewareAndUnknownPathIsNotFound();
+    void head_usesGetHandlerButDropsBody();
+    void head_withoutGetRoute_isNotFound();
 };
 
 void tst_Router::matchesPathAndExtractsParams()
@@ -136,7 +138,7 @@ void tst_Router::options_isAnsweredAutomaticallyWithAllow()
     QVERIFY(router.dispatch(f.ctx, Route::NoTimeOut));
     QCOMPARE(f.sent.size(), 1);
     QCOMPARE(f.sent[0].status, 204);
-    QCOMPARE(f.sent[0].headers.value("Allow").toByteArray(), QByteArray("GET, POST, OPTIONS"));
+    QCOMPARE(f.sent[0].headers.value("Allow").toByteArray(), QByteArray("GET, POST, HEAD, OPTIONS"));
 }
 
 void tst_Router::options_runsRouteMiddlewareAndUnknownPathIsNotFound()
@@ -161,6 +163,43 @@ void tst_Router::options_runsRouteMiddlewareAndUnknownPathIsNotFound()
         f.ctx->setPath("/nothing");
         QVERIFY(!router.dispatch(f.ctx, Route::NoTimeOut)); // không có route nào khớp: 404
     }
+}
+
+void tst_Router::head_usesGetHandlerButDropsBody()
+{
+    Router router;
+    bool called = false;
+    router
+        .get("/items/:id",
+             [&](Ctx c) {
+                 called = true;
+                 c->json(QJsonObject{{"id", c->pathParam("id")}});
+             })
+        .runSync();
+
+    Fixture f;
+    f.ctx->setMethod("HEAD");
+    f.ctx->setPath("/items/7");
+
+    QVERIFY(router.dispatch(f.ctx, Route::NoTimeOut));
+    QVERIFY(called); // handler của GET vẫn chạy
+    QCOMPARE(f.sent.size(), 1);
+    QCOMPARE(f.sent[0].status, 200);
+    QVERIFY(f.sent[0].body.isEmpty());
+    QCOMPARE(f.sent[0].headers.value("Content-Type").toByteArray(), QByteArray("application/json"));
+    QCOMPARE(f.ctx->responseBody(), QByteArray(R"({"id":"7"})")); // ctx vẫn giữ body thật
+}
+
+void tst_Router::head_withoutGetRoute_isNotFound()
+{
+    Router router;
+    router.post("/items", [](Ctx c) { c->text("ok"); }).runSync();
+
+    Fixture f;
+    f.ctx->setMethod("HEAD");
+    f.ctx->setPath("/items");
+
+    QVERIFY(!router.dispatch(f.ctx, Route::NoTimeOut));
 }
 
 QTEST_GUILESS_MAIN(tst_Router)

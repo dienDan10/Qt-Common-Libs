@@ -54,6 +54,7 @@ private slots:
     void slowHandler_gets503WithoutWaiting();
     void concurrentRequests_doNotMixResponses();
     void options_isAnsweredOverTheWire();
+    void head_returnsHeadersWithoutBody();
 
 private:
     std::unique_ptr<HttpServer> mServer;
@@ -211,7 +212,16 @@ void tst_Server::options_isAnsweredOverTheWire()
     const HttpResponse res = await(mHttp->send("OPTIONS", "/hello"));
 
     QCOMPARE(res.statusCode, 204);
-    QCOMPARE(res.header("Allow"), QByteArray("GET, OPTIONS"));
+    QCOMPARE(res.header("Allow"), QByteArray("GET, HEAD, OPTIONS"));
+}
+
+void tst_Server::head_returnsHeadersWithoutBody()
+{
+    const HttpResponse res = await(mHttp->head("/hello"));
+
+    QCOMPARE(res.statusCode, 200);
+    QVERIFY(res.body.isEmpty());
+    QVERIFY(res.header("Content-Type").startsWith("application/json"));
 }
 
 QTEST_GUILESS_MAIN(tst_Server)

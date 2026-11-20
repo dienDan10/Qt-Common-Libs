@@ -81,6 +81,7 @@ public:
     bool hasResponded() const;
     int statusCode() const;
     QByteArray responseBody() const;
+    void setHeadOnly(bool headOnly);
 
     // hook to add middleware to process the response before sending
     void onBeforeResponse(BeforeResponseHook hook);
@@ -111,6 +112,7 @@ private:
     int mStatusCode = 0;
     QByteArray mResponseBody;
     QHttpHeaders mResponseHeaders;
+    bool mHeadOnly = false;
 
     std::atomic<bool> mResponded{false};
     QList<BeforeResponseHook> mBeforeResponseHooks;
