@@ -10,6 +10,7 @@ qt_standard_project_setup()   # bật AUTOMOC cho tests
 
 add_subdirectory(src/httpclient)
 add_subdirectory(src/httpserver)
+add_subdirectory(src/dbaccess)
 
 enable_testing()
 add_subdirectory(tests)

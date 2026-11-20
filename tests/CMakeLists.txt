@@ -30,3 +30,7 @@ target_link_libraries(tst_server
         Qt6::Test
 )
 add_test(NAME tst_server COMMAND tst_server)
+
+qt_add_executable(tst_dbconfig tst_dbconfig.cpp)
+target_link_libraries(tst_dbconfig PRIVATE QtCommon::DbAccess Qt6::Test)
+add_test(NAME tst_dbconfig COMMAND tst_dbconfig)

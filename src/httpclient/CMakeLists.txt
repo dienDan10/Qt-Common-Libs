@@ -6,7 +6,7 @@ add_library(qtcommon_httpclient STATIC
 )
 add_library(QtCommon::HttpClient ALIAS qtcommon_httpclient)
 
-# trỏ lên src/ để người dùng viết #include "httpclient/httpclient.h"
+# trỏ lên src/ để #include "httpclient/httpclient.h"
 target_include_directories(qtcommon_httpclient PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
 target_compile_features(qtcommon_httpclient PUBLIC cxx_std_17)
 set_target_properties(qtcommon_httpclient PROPERTIES AUTOMOC ON)
