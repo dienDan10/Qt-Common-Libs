@@ -34,3 +34,11 @@ add_test(NAME tst_server COMMAND tst_server)
 qt_add_executable(tst_dbconfig tst_dbconfig.cpp)
 target_link_libraries(tst_dbconfig PRIVATE QtCommon::DbAccess Qt6::Test)
 add_test(NAME tst_dbconfig COMMAND tst_dbconfig)
+
+qt_add_executable(tst_connectionlease tst_connectionlease.cpp)
+target_link_libraries(tst_connectionlease PRIVATE QtCommon::DbAccess Qt6::Test)
+add_test(NAME tst_connectionlease COMMAND tst_connectionlease)
+
+qt_add_executable(tst_threadlocalprovider tst_threadlocalprovider.cpp)
+target_link_libraries(tst_threadlocalprovider PRIVATE QtCommon::DbAccess Qt6::Test)
+add_test(NAME tst_threadlocalprovider COMMAND tst_threadlocalprovider)

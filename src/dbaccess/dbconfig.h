@@ -12,6 +12,7 @@
 #define DBCONFIG_H
 #include <QString>
 #include "sqlerror.h"
+#include <chrono>
 
 class QSqlDatabase;
 
@@ -32,6 +33,9 @@ struct DbConfig
 
     SqlError validate() const; // type None = hợp lệ
     void applyTo(QSqlDatabase &db) const;
+
+    QString validationQuery = QStringLiteral("SELECT 1");
+    std::chrono::milliseconds validateAfterIdle{30000};
 };
 
 } // namespace QtCommon::dbaccess
