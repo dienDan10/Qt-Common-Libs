@@ -11,7 +11,7 @@
 #ifndef ICONNECTIONPROVIDER_H
 #define ICONNECTIONPROVIDER_H
 #include "connectionlease.h"
-#include "dbconfig.h"
+#include "dbaccess/core/dbconfig.h"
 #include <chrono>
 #include <memory>
 
@@ -21,8 +21,8 @@ class IConnectionProvider : public std::enable_shared_from_this<IConnectionProvi
 {
 public:
     virtual ~IConnectionProvider() = default;
-    IConnectionProvider(const IConnectionProvider &) = delete;
-    IConnectionProvider &operator=(const IConnectionProvider &) = delete;
+    IConnectionProvider(const IConnectionProvider &) = delete;            // don't allow copy constructor
+    IConnectionProvider &operator=(const IConnectionProvider &) = delete; // don't allow copy assignment
 
     virtual const DbConfig &config() const = 0;                             // get config of this DB
     virtual ConnectionLease acquire(std::chrono::milliseconds timeout) = 0; // get a connection to DB
@@ -30,7 +30,10 @@ public:
 
 protected:
     IConnectionProvider() = default;
-    ConnectionLease makeLease(const QString &connectionName);
+    ConnectionLease makeLease(const QString &connectionName)
+    {
+        return ConnectionLease(shared_from_this(), connectionName);
+    };
 
 private:
     friend class ConnectionLease;

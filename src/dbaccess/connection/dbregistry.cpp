@@ -8,7 +8,7 @@
  * @copyright   Copyright (c) 2026 diendanx.
  *              All rights reserved.
  ******************************************************************************/
-#include "dbregistry.h"
+#include "dbaccess/connection/dbregistry.h"
 
 namespace QtCommon::dbaccess {
 

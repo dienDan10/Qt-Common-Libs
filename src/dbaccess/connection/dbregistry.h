@@ -13,7 +13,7 @@
 
 #include <QHash>
 #include <QReadWriteLock>
-#include "iconnectionprovider.h"
+#include "dbaccess/connection/iconnectionprovider.h"
 #include <memory>
 
 namespace QtCommon::dbaccess {

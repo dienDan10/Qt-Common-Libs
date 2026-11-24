@@ -8,7 +8,7 @@
  * @copyright   Copyright (c) 2026 diendanx.
  *              All rights reserved.
  ******************************************************************************/
-#include "dbconfig.h"
+#include "dbaccess/core/dbconfig.h"
 #include <QSqlDatabase>
 
 namespace QtCommon::dbaccess {

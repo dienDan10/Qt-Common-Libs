@@ -12,7 +12,7 @@
 #define CONNECTIONLEASE_H
 
 #include <QString>
-#include "sqlerror.h"
+#include "dbaccess/core/sqlerror.h"
 #include <memory>
 
 class QSqlDatabase;
@@ -28,8 +28,8 @@ public:
 
     ConnectionLease(ConnectionLease &&other) noexcept;
     ConnectionLease &operator=(ConnectionLease &&other) noexcept;
-    ConnectionLease(ConnectionLease &other) = delete;
-    ConnectionLease &operator=(ConnectionLease &other) = delete;
+    ConnectionLease(ConnectionLease &other) = delete;            // don't allow copy constructor
+    ConnectionLease &operator=(ConnectionLease &other) = delete; // don't allow copy assignment
     ~ConnectionLease();
 
     bool isValid() const { return mProvider != nullptr; };

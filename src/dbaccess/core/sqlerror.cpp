@@ -1,4 +1,4 @@
-#include "sqlerror.h"
+#include "dbaccess/core/sqlerror.h"
 #include <QSqlError>
 
 namespace QtCommon::dbaccess {

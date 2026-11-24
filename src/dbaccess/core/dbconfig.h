@@ -11,7 +11,7 @@
 #ifndef DBCONFIG_H
 #define DBCONFIG_H
 #include <QString>
-#include "sqlerror.h"
+#include "dbaccess/core/sqlerror.h"
 #include <chrono>
 
 class QSqlDatabase;

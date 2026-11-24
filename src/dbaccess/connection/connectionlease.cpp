@@ -8,9 +8,9 @@
  * @copyright   Copyright (c) 2026 diendanx.
  *              All rights reserved.
  ******************************************************************************/
-#include "connectionlease.h"
+#include "dbaccess/connection/connectionlease.h"
 #include <QSqlDatabase>
-#include "iconnectionprovider.h"
+#include "dbaccess/connection/iconnectionprovider.h"
 
 namespace QtCommon::dbaccess {
 
@@ -70,11 +70,6 @@ ConnectionLease &ConnectionLease::operator=(ConnectionLease &&other) noexcept
     }
 
     return *this;
-}
-
-ConnectionLease IConnectionProvider::makeLease(const QString &connectionName)
-{
-    return ConnectionLease(shared_from_this(), connectionName);
 }
 
 } // namespace QtCommon::dbaccess

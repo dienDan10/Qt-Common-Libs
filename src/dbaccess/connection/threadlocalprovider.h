@@ -11,7 +11,7 @@
 #ifndef THREADLOCALPROVIDER_H
 #define THREADLOCALPROVIDER_H
 
-#include "iconnectionprovider.h"
+#include "dbaccess/connection/iconnectionprovider.h"
 #include <atomic>
 
 namespace QtCommon::dbaccess {

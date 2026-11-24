@@ -1,9 +1,9 @@
-#include <QtTest>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QThread>
+#include <QtTest>
+#include "dbaccess/connection/threadlocalprovider.h"
 #include <memory>
-#include "dbaccess/threadlocalprovider.h"
 
 using namespace QtCommon::dbaccess;
 using namespace std::chrono_literals;

@@ -1,12 +1,12 @@
 find_package(Qt6 6.8 REQUIRED COMPONENTS Core Sql)
 
 add_library(qtcommon_dbaccess STATIC
-    sqlerror.h  sqlerror.cpp
-    dbconfig.h dbconfig.cpp
-    iconnectionprovider.h
-    connectionlease.h connectionlease.cpp
-    dbregistry.h dbregistry.cpp
-    threadlocalprovider.h threadlocalprovider.cpp
+    core/sqlerror.h  core/sqlerror.cpp
+    core/dbconfig.h core/dbconfig.cpp
+    connection/iconnectionprovider.h
+    connection/connectionlease.h connection/connectionlease.cpp
+    connection/dbregistry.h connection/dbregistry.cpp
+    connection/threadlocalprovider.h connection/threadlocalprovider.cpp
 )
 add_library(QtCommon::DbAccess ALIAS qtcommon_dbaccess)
 

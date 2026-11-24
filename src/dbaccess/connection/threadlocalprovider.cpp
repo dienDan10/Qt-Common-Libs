@@ -8,7 +8,7 @@
  * @copyright   Copyright (c) 2026 diendanx.
  *              All rights reserved.
  ******************************************************************************/
-#include "threadlocalprovider.h"
+#include "dbaccess/connection/threadlocalprovider.h"
 #include <QCoreApplication>
 #include <QElapsedTimer>
 #include <QSqlDatabase>
