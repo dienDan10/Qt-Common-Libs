@@ -7,6 +7,9 @@ add_library(qtcommon_dbaccess STATIC
     connection/connectionlease.h connection/connectionlease.cpp
     connection/dbregistry.h connection/dbregistry.cpp
     connection/threadlocalprovider.h connection/threadlocalprovider.cpp
+    query/sqlresult.h
+    query/sqlrow.h
+    query/execinfo.h
 )
 add_library(QtCommon::DbAccess ALIAS qtcommon_dbaccess)
 

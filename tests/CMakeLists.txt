@@ -42,3 +42,11 @@ add_test(NAME tst_connectionlease COMMAND tst_connectionlease)
 qt_add_executable(tst_threadlocalprovider tst_threadlocalprovider.cpp)
 target_link_libraries(tst_threadlocalprovider PRIVATE QtCommon::DbAccess Qt6::Test)
 add_test(NAME tst_threadlocalprovider COMMAND tst_threadlocalprovider)
+
+qt_add_executable(tst_sqlresult tst_sqlresult.cpp)
+target_link_libraries(tst_sqlresult PRIVATE QtCommon::DbAccess Qt6::Test)
+add_test(NAME tst_sqlresult COMMAND tst_sqlresult)
+
+qt_add_executable(tst_sqlrow tst_sqlrow.cpp)
+target_link_libraries(tst_sqlrow PRIVATE QtCommon::DbAccess Qt6::Test)
+add_test(NAME tst_sqlrow COMMAND tst_sqlrow)
