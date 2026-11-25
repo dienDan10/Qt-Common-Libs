@@ -50,3 +50,7 @@ add_test(NAME tst_sqlresult COMMAND tst_sqlresult)
 qt_add_executable(tst_sqlrow tst_sqlrow.cpp)
 target_link_libraries(tst_sqlrow PRIVATE QtCommon::DbAccess Qt6::Test)
 add_test(NAME tst_sqlrow COMMAND tst_sqlrow)
+
+qt_add_executable(tst_sqlquery tst_sqlquery.cpp)
+target_link_libraries(tst_sqlquery PRIVATE QtCommon::DbAccess Qt6::Test)
+add_test(NAME tst_sqlquery COMMAND tst_sqlquery)

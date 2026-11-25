@@ -42,7 +42,7 @@ public:
     template<typename T>
     SqlResult<T> scalar() const
     {
-        return withExecuted([this](QSqlQuery& q) {
+        return withExecuted([this](QSqlQuery& q) -> SqlResult<T> {
             if (!q.next()) {
                 if (SqlError err = fetchError(q); err.hasError()) {
                     return err;
@@ -69,7 +69,7 @@ public:
     }
 
     template<typename Mapper, typename R = detail::MappedType<Mapper>>
-    SqlResult<std::optional<R>> list(Mapper&& map) const
+    SqlResult<QList<R>> list(Mapper&& map) const
     {
         static_assert(!std::is_void_v<R>, "mapper must return a value");
         return withExecuted([&](QSqlQuery& q) -> SqlResult<QList<R>> {

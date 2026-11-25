@@ -42,7 +42,8 @@ SqlQuery &SqlQuery::bind(const QVariantMap &values)
 
 SqlResult<ExecInfo> SqlQuery::exec() const
 {
-    return withExecuted([](QSqlQuery &q) { return ExecInfo{q.numRowsAffected(), q.lastInsertId()}; });
+    return withExecuted(
+        [](QSqlQuery &q) -> SqlResult<ExecInfo> { return ExecInfo{q.numRowsAffected(), q.lastInsertId()}; });
 }
 
 SqlError SqlQuery::run(QSqlQuery &q) const
