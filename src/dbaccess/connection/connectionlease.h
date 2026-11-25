@@ -33,7 +33,7 @@ public:
     ~ConnectionLease();
 
     bool isValid() const { return mProvider != nullptr; };
-    const SqlError &error() { return mError; };
+    const SqlError &error() const { return mError; };
     const QString &connectionName() const { return mName; };
 
     QSqlDatabase database() const;

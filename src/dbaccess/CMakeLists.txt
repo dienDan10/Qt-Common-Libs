@@ -10,6 +10,7 @@ add_library(qtcommon_dbaccess STATIC
     query/sqlresult.h
     query/sqlrow.h
     query/execinfo.h
+    query/sqlquery.h query/sqlquery.cpp
 )
 add_library(QtCommon::DbAccess ALIAS qtcommon_dbaccess)
 

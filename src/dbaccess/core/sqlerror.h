@@ -13,6 +13,7 @@ struct SqlError
         InvalidConfig,
         NoDriver,
         Timeout,
+        NoRow,
         Connection,  //  Qsql
         Statement,   //  Qsql
         Transaction, // Qsql
