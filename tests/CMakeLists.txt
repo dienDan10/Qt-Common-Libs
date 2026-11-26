@@ -62,3 +62,7 @@ add_test(NAME tst_transaction COMMAND tst_transaction)
 qt_add_executable(tst_database tst_database.cpp)
 target_link_libraries(tst_database PRIVATE QtCommon::DbAccess Qt6::Test)
 add_test(NAME tst_database COMMAND tst_database)
+
+qt_add_executable(tst_dbconcurrency tst_dbconcurrency.cpp)
+target_link_libraries(tst_dbconcurrency PRIVATE QtCommon::DbAccess Qt6::Test)
+add_test(NAME tst_dbconcurrency COMMAND tst_dbconcurrency)
