@@ -1,7 +1,7 @@
 // tests/tst_dbconfig.cpp
 #include <QSqlDatabase>
 #include <QtTest>
-#include "dbaccess/dbconfig.h"
+#include "dbaccess/core/dbconfig.h"
 
 using namespace QtCommon::dbaccess;
 class TestDbConfig : public QObject

@@ -1,6 +1,6 @@
 #include <QSqlDatabase>
 #include <QtTest>
-#include "dbaccess/dbregistry.h"
+#include "dbaccess/connection/dbregistry.h"
 
 using namespace QtCommon::dbaccess;
 
