@@ -40,10 +40,14 @@ struct Entry
     QElapsedTimer lastUsed;
 };
 
+thread_local bool tConnectionsAlive = false;
+
 struct ThreadConnections
 {
     QHash<quint64, Entry> entries;
     bool cleanupHooked = false;
+
+    ThreadConnections() { tConnectionsAlive = true; }
 
     void drop(quint64 providerId)
     {
@@ -65,6 +69,7 @@ struct ThreadConnections
 
     ~ThreadConnections()
     {
+        tConnectionsAlive = false;
         if (QCoreApplication::instance())
             dropAll();
     }
@@ -78,7 +83,10 @@ void hookThreadCleanup()
         return;
     tConnections.cleanupHooked = true;
 
-    QObject::connect(QThread::currentThread(), &QThread::finished, [] { tConnections.dropAll(); });
+    QObject::connect(QThread::currentThread(), &QThread::finished, [] {
+        if (tConnectionsAlive && QCoreApplication::instance())
+            tConnections.dropAll();
+    });
 }
 
 SqlError ensureUsable(Entry &entry, const DbConfig &cfg)

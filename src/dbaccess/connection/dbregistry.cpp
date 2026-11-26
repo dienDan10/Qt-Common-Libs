@@ -32,7 +32,7 @@ SqlError DbRegistry::add(std::shared_ptr<IConnectionProvider> provider)
     const QString name = provider->config().name;
     QWriteLocker locker(&mLock);
     if (mProviders.contains(name)) {
-        return SqlError::make(T::InvalidConfig, QStringLiteral("[%1] already registered"));
+        return SqlError::make(T::InvalidConfig, QStringLiteral("[%1] already registered").arg(name));
     }
 
     mProviders.insert(name, std::move(provider));
